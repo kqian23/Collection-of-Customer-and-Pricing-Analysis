@@ -41,14 +41,14 @@ df$logUNITS3 <- log(df$UNITS3)
 ```{r}
 # Linear model
 lm.linear.smp.1 = lm(UNITS1~REGPR1+FEAT1+RATING1, df)
-# Log model
+# semi-Log model
 lm.log.smp.1 = lm(logUNITS1~REGPR1+FEAT1+RATING1, df)
 
 # Calculate price elasticity for the linear model
 price.coeff.linear.smp.1 = unname(lm.linear.smp.1$coefficients[2], force = FALSE)
 elas.linear.smp.1        = price.coeff.linear.smp.1*mean(df$REGPR1)/mean(df$UNITS1)
 
-# Calculate price elasticity for the log model
+# Calculate price elasticity for the Semi-log model
 price.coeff.log.smp.1 = unname(lm.log.smp.1$coefficients[2], force = FALSE)
 elas.log.smp.1        = price.coeff.log.smp.1*mean(df$REGPR1)
 
@@ -56,20 +56,20 @@ summary(lm.linear.smp.1)
 summary(lm.log.smp.1)
 ```
 **Comment:**
-Both simple models fit quite well despite not including competitive effects. ALl three variables are significant. 
+For App 1, both the simple models fit quite well and have a high R-square despite not including competitive effects. All three variables are significant. 
 
 ## Simple Regression Model for App2 (only consider own price, feature and rating) {#app2.simple}
 ```{r}
 # Linear model
 lm.linear.smp.2 = lm(UNITS2~REGPR2+FEAT2+RATING2, df)
-# Log model
+# Semi-Log model
 lm.log.smp.2 = lm(logUNITS2~REGPR2+FEAT2+RATING2, df)
 
 # Calculate price elasticity for the linear model
 price.coeff.linear.smp.2 = unname(lm.linear.smp.2$coefficients[2], force = FALSE)
 elas.linear.smp.2        = price.coeff.linear.smp.2*mean(df$REGPR2)/mean(df$UNITS2)
 
-# Calculate price elasticity for the log model
+# Calculate price elasticity for the Semi-log model
 price.coeff.log.smp.2 = unname(lm.log.smp.2$coefficients[2], force = FALSE)
 elas.log.smp.2        = price.coeff.log.smp.2*mean(df$REGPR2)
 
@@ -77,20 +77,20 @@ summary(lm.linear.smp.2)
 summary(lm.log.smp.2)
 ```
 **Comment:**
-The simple linear model fits better with a R-square of 0.67. All three variables are significant
+The simple linear model fits better with a R-square of 0.67. All three variables are significant.
 
 ## Simple Regression Model for App3 (only consider own price, feature and rating) {#app3.simple}
 ```{r}
 # Linear model
 lm.linear.smp.3 = lm(UNITS3~REGPR3+FEAT3+RATING3, df)
-# Log model
+# Semi-Log model
 lm.log.smp.3 = lm(logUNITS3~REGPR3+FEAT3+RATING3, df)
 
 # Calculate price elasticity for the linear model
 price.coeff.linear.smp.3 = unname(lm.linear.smp.3$coefficients[2], force = FALSE)
 elas.linear.smp.3        = price.coeff.linear.smp.3*mean(df$REGPR3)/mean(df$UNITS3)
 
-# Calculate price elasticity for the log model
+# Calculate price elasticity for the Semi-log model
 price.coeff.log.smp.3 = unname(lm.log.smp.3$coefficients[2], force = FALSE)
 elas.log.smp.3        = price.coeff.log.smp.3*mean(df$REGPR3)
 
@@ -107,14 +107,14 @@ Neither model fits particularly well as the R-squares are relatively small. The 
 ```{r}
 # Linear model for app1 
 lm.linear.1 = lm(UNITS1~REGPR1+FEAT1+RATING1+REGPR2+FEAT2+RATING2+REGPR3+FEAT3+RATING3, df)
-# Log model for app1
+# Semi-Log model for app1
 lm.log.1 = lm(logUNITS1~REGPR1+FEAT1+RATING1+REGPR2+FEAT2+RATING2+REGPR3+FEAT3+RATING3, df)
 
 # Calculate price elasticity for linear model
 price.coeff.linear.1 = unname(lm.linear.1$coefficients[2], force = FALSE)
 elas.linear.1        = price.coeff.linear.1*mean(df$REGPR1)/mean(df$UNITS1)
 
-# Calculate price elasticity for log model
+# Calculate price elasticity for Semi-log model
 price.coeff.log.1 = unname(lm.log.1$coefficients[2], force = FALSE)
 elas.log.1        = price.coeff.log.1*mean(df$REGPR1)
 
@@ -124,16 +124,16 @@ summary(lm.log.1)
 
 ## Full Regression Model for App2  (consider both own and competitors' price, feature and rating) {#app2.full}
 ```{r}
-# Linear model for app1 
+# Linear model for app2
 lm.linear.2 = lm(UNITS2~REGPR1+FEAT1+RATING1+REGPR2+FEAT2+RATING2+REGPR3+FEAT3+RATING3, df)
-# Log model for app1
+# Semi-Log model for app2
 lm.log.2 = lm(logUNITS2~REGPR1+FEAT1+RATING1+REGPR2+FEAT2+RATING2+REGPR3+FEAT3+RATING3, df)
 
 # Calculate price elasticity for linear model
 price.coeff.linear.2 = unname(lm.linear.2$coefficients[5], force = FALSE)
 elas.linear.2        = price.coeff.linear.2*mean(df$REGPR2)/mean(df$UNITS2)
 
-# Calculate price elasticity for log model
+# Calculate price elasticity for Semi-log model
 price.coeff.log.2 = unname(lm.log.2$coefficients[5], force = FALSE)
 elas.log.2        = price.coeff.log.2*mean(df$REGPR2)
 
@@ -143,16 +143,16 @@ summary(lm.log.2)
 
 ## Full Regression Model for App3  (consider both own and competitors' price, feature and rating) {#app3.full}
 ```{r}
-# Linear model for app1 
+# Linear model for app3
 lm.linear.3 = lm(UNITS3~REGPR1+FEAT1+RATING1+REGPR2+FEAT2+RATING2+REGPR3+FEAT3+RATING3, df)
-# Log model for app1
+# Semi-Log model for app3
 lm.log.3 = lm(logUNITS3~REGPR1+FEAT1+RATING1+REGPR2+FEAT2+RATING2+REGPR3+FEAT3+RATING3, df)
 
 # Calculate price elasticity for linear model
 price.coeff.linear.3 = unname(lm.linear.3$coefficients[8], force = FALSE)
 elas.linear.3        = price.coeff.linear.3*mean(df$REGPR3)/mean(df$UNITS3)
 
-# Calculate price elasticity for log model
+# Calculate price elasticity for Semi-log model
 price.coeff.log.3 = unname(lm.log.3$coefficients[8], force = FALSE)
 elas.log.3        = price.coeff.log.3*mean(df$REGPR3)
 
@@ -173,24 +173,22 @@ summary(lm.log.3)
 ```
 [own models](#app1.simple),
 [own&comp models](#app1.full)  
-\ We propose the 'semi-log own&comp'(lm.log.1) as the best model.
+We propose the 'semi-log own&comp'(lm.log.1) as the best model.
 Though the 'linear own&comp' has the highest R-square, it doesn't take competitor's prices into account.
 The semi-log has not only app1's price and feature significant, but also app2's price.
-The price elasticity for this model is -0.9, which implies app1 is not very suscepitble to price change.
 
 ## App2  
 ```{r}
 # Compare models for App2
 #summary(lm.linear.smp.2) 
 #summary(lm.log.smp.2)
-#summary(lm.linear.2)  # best model: Highest R-square, incorporate the cross-price effect by app1
+#summary(lm.linear.2)  # best model: Highest R-square, incorporates the cross-price effect by competitor(app1) and the effect of app 1's feature. 
 #summary(lm.log.2)
 ```
 [own models](#app2.simple), 
 [own&comp models](#app2.full)  
-\ We propose the 'linear own&comp'(lm.linear.1) as the best model.
+We propose the 'linear own&comp'(lm.linear.1) as the best model.
 Not only it has the highest R-Square, it has taken App1's price and feature into account.
-The price elasticity for this model is -3.7, implies app2's sale is relatively susceptible to price change.
 
 ## App3
 ```{r}
@@ -203,9 +201,8 @@ The price elasticity for this model is -3.7, implies app2's sale is relatively s
 ```
 [own models](#app3.simple), 
 [own&comp models](#app3.full)  
-\ We propose the 'log own&comp'(lm.log.3) as the best model.
+We propose the 'semi-log own&comp'(lm.log.3) as the best model.
 Not only it has the highest R-Square, it has taken App1's price into account.
-The price elasticity for this model is -4.6, implies app3's sale is very susceptible to price change.
 
 
 # What do these best models tell you about market structure and inter-app competition in this game category, e.g., create a clout/vulnerability map (as we did in class)?
@@ -257,15 +254,6 @@ clout_and_vulnerability <- data.frame(c("app1","app2", "app3"),
 colnames(clout_and_vulnerability) <- c("app", "clout", "vulnerability")
 clout_and_vulnerability
 ```
-**comment on clout and vulnerability table**
-interpretation of clouts: 
-if app1 drops its price by 1%, the sales of all competing apps will drop by 9.16%
-if app2 drops its price by 1%, the sales of all competing apps will drop by 0.29%
-
-interpretation of vulnerability: 
-if the price of all competing apps drop 1%,the sales of app1 will drop by 0.29%
-if the price of all competing apps drop 1%,the sales of app2 will drop by 2.23%
-if the price of all competing apps drop 1%,the sales of app3 will drop by 6.92%
 
 ## Visualize clout and vulnerability 
 ```{r}
@@ -280,8 +268,10 @@ clout_and_vulnerability$share <- c(100*avg.unit.1/total.unit, 100*avg.unit.2/tot
 # plot the clout & vulnerability chart
 ggplot(data=clout_and_vulnerability, mapping=aes(x=vulnerability, y=clout, label=app)) + geom_point(aes(size=share), color="coral1") + geom_text(nudge_x=0.4) + ggtitle("Clout and Vulnerability")
 ```
-
-
+**comment on clout and vulnerability**  
+App1 has strong clout and little vulnerability. This means a price deduction in App1 will largely steal the share of other apps. App2 and App3 both have little to none clout, meaning the price change of these two apps have little effect on competitors. However, since App3 has a high vulnerability, competitors' price drop will sharply decreases App3's share.  
+  
+App1 with the highest price and greatest market share is a premium brand. It has larger effects on other two small apps than vice versa. 
 
 
 
