@@ -1,13 +1,7 @@
 # Customer Analytics Projects
 
-### 1. Modeling Sales and Features for App Data
-For this project I:
-- Ran multiple regression (linear and semi-log) on 'sales data' (dependent variable) and 'app information' (independent variable) for three competing apps.
-- Evaluated model strength and comprehensiveness.
-- Calculated price elasticity.
-- Performed clout and vulnerability analysis.
 
-### 2. Modeling Advertising and Visitors Data
+### 1. Evaluating Market Structure with Multiple Regression
 For this project I:
 - applied three types of models (linear, concave log, and concave quadratic) to predict 'number of visitors'(dependent variable) using 'total dollar amount spent on advertising' (independent variable)
 - improved the model by introducing exponential decaying log effect on 'total dollar amount spent on advertising'
@@ -15,8 +9,15 @@ For this project I:
 - evaluated and selected the best model
 - calculated the saturation level
 
+### 2. Modeling Lag Effect of Advertising Expenditure
+For this project I:
+- Ran multiple regression (linear and semi-log) on 'sales data' (dependent variable) and 'app information' (independent variable) for three competing apps.
+- Evaluated model strength and comprehensiveness.
+- Calculated price elasticity.
+- Performed clout and vulnerability analysis.
 
-### 3. Scoring Customers & Acquisition
+
+### 3. Predicting Customer Response with Logistic Regression
 For this project I:
 - spited the customer data into 'training' and 'testing' data
 - built a logistic model on 'training' data to predict 'customer response rate' (dependent variable) based on 'customer information' (independent variable)
