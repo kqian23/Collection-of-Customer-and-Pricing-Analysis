@@ -1,0 +1,181 @@
+---
+title: "Team6_Ex3"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 0.1 Set-up
+
+```{r}
+# Clear All Variables & Clear the Screen
+rm(list=ls())
+cat("\014")
+
+# Read in the Data
+data.adv = read.csv("Ex3_Data_R.csv")
+
+# Explore the data
+str(data.adv)
+summary(data.adv)
+```
+
+
+## 0.2 Data Preparation
+In our case we have to create new variables: log(Total.Spent), Total.Spent^2, and Lag(Total.Spent)
+```{r}
+
+# Create log Total.Spent
+data.adv$logTotal.Spent <- log(data.adv$Total.Spent)
+
+# Create Total.Spent^2
+data.adv$Total.Spent2 <- (data.adv$Total.Spent)^2
+
+# Create LAG Visitors - V_(t-1)
+data.adv$lagVisitors <- c(NA, head(data.adv$Visitors, -1))
+
+# Display the data
+summary(data.adv)
+```
+\  
+
+\ 
+
+# 1 Short-run Response.  Analyze the short-run response of clicks (i.e., visitors) to advertising (i.e., paid search spending).
+## 1.a Fit the following three models of advertising-click response (at this stage we will not add other information to the model; keep things simple and stick to advertising), report your results and comment, briefly.
+### 1.a.i Simple linear
+```{r}
+# Run the simple linear regression on Visitors and Total.Spent on paid search
+lm.model1 <- lm(Visitors ~ Total.Spent, data = data.adv)
+summary(lm.model1)
+```
+
+### 1.a.ii Concave logarithmic
+```{r}
+# Run the Concave logarithmic regression on Visitors and Total.Spent on paid search
+lm.model2 <- lm(Visitors ~ logTotal.Spent, data = data.adv)
+summary(lm.model2)
+```
+
+### 1.a.iii Concave quadratic
+```{r}
+# Run the concave quadratic regression on Visitors and Total.Spent on paid search
+lm.model3 <- lm(Visitors ~ Total.Spent + Total.Spent2, data = data.adv)
+summary(lm.model3)
+```
+In all three models, 'Total.Spent' is significant. The 'logTotal.Spent' in model2 is significant. The 'Total.Spent2' in model3 is also significant.\  
+
+The R-squared is 0.42 for simple linear (model1), 0.48 for concave log (model2), and 0.50 for concave quadratic (model3). Model3 has the highest R-squared. 
+
+## 1.b Compute the advertising elasticity implied by each model (use July’s monthly clicks and advertising spent to scale the elasticities)
+```{r}
+# Create a boolean list that returns TRUE for data in July
+is_july <- substring(data.adv$Day,1,1)==7
+
+# Calculate mean visitors in July
+mean_visitors <- mean(data.adv$Visitors[is_july])
+# Calculate mean ads spent amount in July
+mean_spent <- mean(data.adv$Total.Spent[is_july])
+
+# Compute the advertising elasticity for the simple linear model
+model1.b1 <- unname(lm.model1$coefficients[2])
+adv.elas.1 <- model1.b1*(mean_spent/mean_visitors)
+print(paste("advertising elasticity for the simple linear model is", adv.elas.1))
+# Compute the advertising elasticity for the concave log model
+model2.b1 <- unname(lm.model2$coefficients[2])
+adv.elas.2 <- model2.b1*(1/mean_visitors)
+print(paste("advertising elasticity for the concave log model is",adv.elas.2))
+# Compute the advertising elasticity for the concave quadratic model
+model3.b1 <- unname(lm.model3$coefficients[2])
+model3.b2 <- unname(lm.model3$coefficients[3])
+adv.elas.3 <- (model3.b1 + 2*model3.b2*mean_spent)*(mean_spent/mean_visitors)
+print(paste("advertising elasticity for the concave quadratic model is",adv.elas.3))
+```
+
+
+## 1.c Which model is best?  Which, if any, would you reject?
+The concave quadratic model (model3) seems to be the best. It has the highest R-squared of 0.5. Both the Total.Spent and the square Total.Spent are significant. Its quadratic nature also assumes diminishing marginal returns to advertising spending, which accounts for saturation.\  
+
+We'd like to reject the simple linear model (model1). It has the lowest R-squared. Furthermore, it assumes constant marginal returns, which can be problematic during extrapolation.\  
+\  
+
+
+# 2 Long-run Response.  Analyze the long-run response of clicks to advertising using the same data.
+## 2 Fit the same three models of advertising response but incorporate an exponentially decaying lag effect for advertising. Report your results and briefly comment.
+### 2.a.i Simple linear with lag effect
+```{r}
+# Run the simple linear regression with exponentially decaying lag effect for Total.Spent on paid search
+lm.model4 <- lm(Visitors ~ Total.Spent + lagVisitors, data = data.adv)
+summary(lm.model4)
+```
+
+### 2.a.ii Concave logarithmic with lag effect
+```{r}
+# Run the Concave logarithmic regression with exponentially decaying lag effect for Total.Spent on paid search
+lm.model5 <- lm(Visitors ~ logTotal.Spent + lagVisitors, data = data.adv)
+summary(lm.model5)
+```
+
+### 2.a.iii Concave quadratic with lag effect
+```{r}
+# Run the concave quadratic regression with exponentially decaying lag effect for Total.Spent on paid search
+lm.model6 <- lm(Visitors ~ Total.Spent + Total.Spent2 + lagVisitors, data = data.adv)
+summary(lm.model6)
+```
+All three models have an R-squared of around 0.96.\  
+
+For model4 (simple linear model with lag effect), both the Total.Spent and the lagVisitors are significant.  
+
+For model5 (concave logarithmic model with lag effect), both the logTotal.Spent and the lagVisitors are significant.  
+
+For model6, (concave quadratic model with lag effect), only the lagVisitors is significant.
+
+## 2.b Compute the long-run advertising elasticity implied by each model (again use July’s monthly figures for scaling).
+```{r}
+# Examine the coefficients
+lm.model4$coefficients
+lm.model5$coefficients
+lm.model6$coefficients
+
+# Compute the long-run advertising elasticity for the simple linear model with lag effect
+model4.b1 <- unname(lm.model4$coefficients[2])
+model4.lambda <- unname(lm.model4$coefficients[3])
+adv.elas.4 <- model4.b1/(1-model4.lambda)*(mean_spent/mean_visitors)
+print(paste("long-run advertising elasticity for the simple linear model with lag effect is", adv.elas.4))
+# Compute the long-run advertising elasticity for the concave log model with lag effect
+model5.b1 <- unname(lm.model5$coefficients[2])
+model5.lamdba <-unname(lm.model5$coefficients[3])
+adv.elas.5 <- model5.b1/(1-model5.lamdba)*(1/mean_visitors)
+print(paste("long-run advertising elasticity for the concave log model with lag effect is",adv.elas.5))
+# Compute the long-run advertising elasticity for the concave quadratic model with lag effect
+model6.b1 <-unname(lm.model6$coefficients[2])
+model6.b2 <- unname(lm.model6$coefficients[3])
+model6.lambda <- unname(lm.model6$coefficients[4])
+adv.elas.6 <- (model6.b1+2*model6.b2*mean_spent)/(1-model6.lambda)*(mean_spent/mean_visitors)
+print(paste("long-run advertising elasticity for the concave quadratic model with lag effect is",adv.elas.6))
+
+```
+## 2.c Which model is best?  Which, if any, would you reject?
+Model5 (Concave logarithmic with lag effect) might be the best model. Given a similar R-squared of 0.96, it incorporates the effect of both current spending on paid search and exponentially decaying lag effect for spending on paid search, while model6 only incorporates the lag effect and leaves out the present effect. The concave shape of this model accounts for the diminishing effect on visitor numbers by increased ads spending.\  
+
+We want to reject the linear model again because its assumption of constant marginal returns and the problem when extrapolation. We would also want to reject the Concave quadratic mode because it does not take into account the effect of present advertisement spend as significant.
+\  
+
+
+# 3 Saturation.  Drawing on the models that you fitted above, compute the saturation level for advertising spending.  Report results in terms of daily advertising spending.
+```{r}
+# Calculate the saturation level for advertising spending in model3 (concave-quadratic)
+adv.saturation.3 <--model3.b1/(2*model3.b2)
+adv.saturation.3
+# Calculate the saturation level for advertising spending in model6 (concave-quadratic with lag effects)
+adv.saturation.6 <--model6.b1/(2*model6.b2)
+adv.saturation.6
+```
+Model1,2,3 and 5 don't have a saturation level.\  
+
+The saturation level for model 3 is 1150. This indicates the level of daily ads spending until it has negative effect on number of visitors. \  
+
+Combining the spillover effect of previous advertisement spends, the saturation level as per model 6 for daily advertising spending will be around $3447 This is the maximum point after which advertisement negatively affects number of visitors. 
+

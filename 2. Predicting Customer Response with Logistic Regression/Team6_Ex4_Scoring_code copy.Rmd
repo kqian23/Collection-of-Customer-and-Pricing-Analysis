@@ -1,0 +1,177 @@
+---
+title: "Customer Acquisition & Scoring "
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## 0.1 First Steps 
+```{r}
+
+# Clear All Variables & Clear Screen
+rm(list=ls())
+cat("\014")
+
+# Read in the Data
+data.train = read.csv("Data_Estimation_R.csv")
+data.test = read.csv("Data_Holdout_R.csv")
+
+# Explore the data
+str(data.train)
+summary(data.train)
+str(data.test)
+summary(data.test)
+
+```
+
+
+## 1.	Predict y (i.e., the decision to join the club) as a function of the available scoring variables x (gender and all hl…) using a LOGIT model. Include an intercept term to account for a base response rate. Keep all coefficients (i.e., do not eliminate coefficients which seems to be statistically insignificant).
+
+```{r}
+
+# Run the Binary Logit Model on the training set (includes an INTERCEPT)
+glm.model <- glm(y ~ gender + hl1 + hl2 + hl3 + hl5 + hl6, family=binomial(link='logit'), data=data.train)
+
+# Display Results
+summary(glm.model)
+
+# Evaluate the accuracy of the model 
+data.train$p <- round(predict(glm.model, data.train, type = c("response")), digits = 0)
+
+print(paste("The accuracy rate of the model w.r.t the training set is ", sum(data.train$p==data.train$y)/200*100, "%"))
+```
+
+
+
+## 2.	Based on your logit model, score all individuals on in the Testing sample (you can do this manually, e.g., in Excel, or adapt the R code from class). This means calculate, for all prospects in the Testing sample, the predicted response rate. Using your model, compute (for each individual):  
+
+### (a) Predicted Response Rate
+
+```{r}
+
+# Predicting response for the 300 TESTING IDs based on the Model Estimates
+prediction.test <- data.frame(ID = data.test$id, 
+                              BinaryLogitProbability = predict(glm.model, data.test, type = c("response")),
+                              BinaryLogitPredict     = round(predict(glm.model, data.test, type = c("response")), digits = 0),
+                              BinaryLogitActual      = data.test$y)
+
+```
+
+### (b)	Lift
+```{r}
+
+# Add Lift to the Forecast. Recall lift is simply the predicted response rate divided by the average response rate of the Training sample
+prediction.test$lift = prediction.test$BinaryLogitProbability/mean(data.train$y)
+
+# print out the first 10 prospects
+head(prediction.test,10)
+```
+
+## 3.	Sort the holdout-list in decreasing order of lift. 
+```{r}
+# sort the table
+prediction.test.sort <- prediction.test[order(prediction.test$lift, decreasing=TRUE),]
+
+# reset row index
+row.names(prediction.test.sort) <- NULL
+prediction.test.sort$n <- row.names(prediction.test.sort)
+```
+
+## 4. Plot Marginal Response Rate vs. Number of Prospects Targeted
+```{r}
+# Now we can make a plot of the response rate by number of prospects targeted
+plot(prediction.test.sort$BinaryLogitProbability, main="Marginal Response Rate vs. Number of Solicitation Made",
+   xlab="n", ylab="nth-best response rate")
+
+```
+
+## 5.	We know that average CLV is $30 and the solicitation cost is $12. Based on the Marginal Cost Rule determine who the CD club should send invitations to.
+```{r}
+# These two values are given
+solicitation_cost <- 12
+mean_CLV <- 30
+
+# calculate the minimum response rate that the firm should target based on Marginal Cost Rule
+min_response_rate <- solicitation_cost / mean_CLV
+# get the prospects to send invitations to based on MCR (Marginal Cost Rule)
+MCR.target <- prediction.test.sort[prediction.test.sort$BinaryLogitProbability>min_response_rate,]
+
+
+print(paste("According to the Marginal Cost Rule, the Cut-Off Response is at ",  min_response_rate, ". Therefore, the CD club should send invitation to the",  nrow(MCR.target) ,"prospects with highest predicted response rate."))
+```
+
+
+## 6.	Compute the Cumulative Sum (aka running sum) for the Predicted Response Rates in decreasing order. Plot the curve for Number of Positive Responses vs. Number of Prospects Targeted.
+```{r}
+# Add a column and calculate the running sum use the 'cumsum' function
+prediction.test.sort$cum_sum_p <- cumsum(prediction.test.sort$BinaryLogitProbability)
+
+# plot the curve for running sum of the predicted response rate
+plot(x=as.integer(rownames(prediction.test.sort)), y=prediction.test.sort$cum_sum_p, xlab = "Number of Prospects Targeted", ylab = "Expected Total Number of Responses", main = "Number of Positive Responses vs. Number of Prospects Targeted")
+```
+
+## 7.	The CD club has only 40 items of the collector’s edition of “Pink Floyd’s The Wall”. Based on the Limited Supply Rule, which prospects (and how many) on the Testing list should the CD club send an invitation to?
+```{r}
+# set the item limit
+k = 40
+
+# Find the target prospects based on LSR (Limited Supply Rule)
+LSR.target <- prediction.test.sort[prediction.test.sort$cum_sum_p < k,]
+
+# Inspect the result
+str(LSR.target)
+summary(LSR.target)
+
+print("According to the Limited Supply Rule, the CD club should send invitation to prospects when the running sum is less than 40, that is, the 64 prospects with the highest predicted response rate.")
+```
+
+## 8.	Compute the Cumulative Sum (aka running sum) for the Actual Response Rate (recall this is either 0 or 1) in decreasing order of Predicted Response Rate. Plot the curve for curve for number of Actual Positive Responses vs. Number of Prospects Targeted. Superimpose on this the curve obtained in step 6 above. 
+Using the chart, comment on the differences between the Actual Response Rates and the Predicted Response Rates for the prospects in the Testing Sample. What is the impact on your results in step 7? 
+
+```{r}
+# Calculate the running sum of Actual Response Rate
+prediction.test.sort$cum_sum_a <- cumsum(prediction.test.sort$BinaryLogitActual)
+
+# plot the curve for running sum of the actual response rate
+# plot the actual response curve
+plot(prediction.test.sort$cum_sum_a, ylim = c(0,110), col="red", pch = 4, xlab='', ylab='')
+# allow superimposition
+par(new = TRUE)
+# plot the predicted response curve and add the labels
+plot(prediction.test.sort$cum_sum_p, ylim=c(0,110), col = "blue", xlab="Number of Prospects Targeted", ylab="Actual and Expected Total Number of Responses", main="Holdout Sample Analysis")
+# add a legend
+legend(1, 95, legend=c("Predicted Responses", "Actual Responses"),
+       col=c("blue", "red"), pch=c(1,4), cex=0.8)
+
+# Comment
+print("The model tends to over-predict. Therefore the CD shop will need to send invitation to more than 64 prospects in order to sell all of the 40 items. According to the actual response, the CD club should send out around 90 invitations.")
+```
+
+
+
+## Bonus: 1. Confusion Matrix
+```{r}
+# Prediciton of Number of Buyers
+sum(prediction.test["BinaryLogitPredict"])
+sum(prediction.test["BinaryLogitProbability"])
+
+# Histogram of Props
+hist(prediction.test$BinaryLogitProbability, main = paste("Histogram of Response Probs"), xlab = "Prob of Response")
+
+# Confusion Matrix
+#install.packages("gmodels")
+library(gmodels)
+CrossTable(data.test$y, prediction.test$BinaryLogitPredict,prop.r=TRUE, prop.c=FALSE, prop.t=FALSE,
+           prop.chisq=FALSE, dnn = c("Real Response", "Predicted Response"))
+
+# Exporting the Predictions to Excel
+# You can open a csv file in xl
+write.csv(prediction.test, file = "Prediction_Testing.csv")
+
+
+```
+
+
