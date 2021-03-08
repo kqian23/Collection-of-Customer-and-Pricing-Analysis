@@ -1,25 +1,24 @@
 # Customer Analytics Projects
 
+### 1. Customer Attitude Analysis
+- Performed customer attitude segmentation using **PCA** 
 
-### 1. Evaluating Market Structure with Multiple Regression
-For this project I:
-- Ran multiple regression (linear and semi-log) on 'sales data' (dependent variable) and 'app information' (independent variable) for three competing apps.
-- Evaluated model strength and comprehensiveness.
-- Calculated price elasticity.
-- Performed clout and vulnerability analysis.
+### 2. Predicting Customer Response with Logistic Regression
+- used **Logistic Regression** to predict 'customer response rate' (dependent variable) based on 'customer information' (independent variable)
 
-### 2. Modeling Lag Effect of Advertising Expenditure
-For this project I:
-- applied three types of models (linear, concave log, and concave quadratic) to predict 'number of visitors'(dependent variable) using 'total dollar amount spent on advertising' (independent variable)
-- improved the model by introducing exponential decaying log effect on 'total dollar amount spent on advertising'
-- computed long-run advertising elasticity
-- evaluated and selected the best model
-- calculated the saturation level
+### 3. Evaluating Market Structure with Multiple Regression
+- Analyzed crossp price elasticity by running multiple **regression models (linear and semi-log)** on *'sales'* (dependent variable) and *'app information'* (independent variable) for three competing app
+- Performed clout and vulnerability analysis
 
-### 3. Predicting Customer Response with Logistic Regression
-For this project I:
-- spited the customer data into 'training' and 'testing' data
-- built a logistic model on 'training' data to predict 'customer response rate' (dependent variable) based on 'customer information' (independent variable)
-- scored each customer based on the logit model
-- test the model performance on 'testing' data
-- made suggestion on advertising strategy based on the model
+### 4. Modeling Lag Effect of Advertising Expenditure
+- applied multiple **regression models (linear, concave log, and concave quadratic)** to predict *'number of visitors'*(dependent variable) using *'total dollar amount spent on advertising'* (independent variable)
+- Analyzed long-run advertising elasticity and saturation
+
+### 5. Pricing & Profitablity Analysis
+- Analyzed sales quantity and profit under different pricing strategies
+- Evaluated and quantified the impact of cross-price elasticity by competitive products
+
+### 6. Pricing Cannibalization & Competition Analysis
+- Extracted price elasticities from sales data by fitting **log-log regression models**. 
+- Refine the models by controlling seasonal,store, and promotion effects
+- Suggesting optimal pricing based on projected profit analysis
